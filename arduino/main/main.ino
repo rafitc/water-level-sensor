@@ -10,9 +10,9 @@ const int tank_one_yellow = 4;
 const int tank_one_red = 5;
 
 // sump level
-int sump_green = 6;
-int sump_black = 7;
-int sump_red = 8;
+const int sump_green = 6;
+const int sump_black = 7;
+const int sump_red = 8;
 
 // system status
 int system_status = 9;
@@ -38,15 +38,23 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
-    int tankLevel = digitalRead(19);
+    int tankLevel =0, sumpLevel = 0;
 
     // Find Tank 1 Water level
     tankLevel = checkTankLevel();
-    Serial.print("Current Water Level : ");
+    Serial.print("Current Tank Water Level : ");
     Serial.print(tankLevel);
     Serial.println("%");
-}
 
+    // Find SUMP water level 
+    sumpLevel = checkSumpLevel();
+    Serial.print("Current Sump Water Level : ");
+    Serial.print(sumpLevel);
+    Serial.println("%");
+    delay(100);
+
+}
+//------Functions for Tank 
 int checkTankLevel()
 {
     int respArray[] = {0, 0, 0, 0};
@@ -58,15 +66,15 @@ int checkTankLevel()
         int pinStatus = digitalRead(i);
         if (pinStatus == pinModeStatus)
         {
-            respArray[arrIndex] = getLevel(i);
+            respArray[arrIndex] = getLevelOfTank(i);
         }
         arrIndex++;
     }
     currPerc = maxValOfArray(respArray);
     return currPerc;
-}
+} 
 
-int getLevel(int pinNo)
+int getLevelOfTank(int pinNo)
 {
     int perc = 0;
     switch (pinNo)
@@ -96,6 +104,52 @@ int getLevel(int pinNo)
     return perc;
 }
 
+//----------Functions for SUMP 
+
+int checkSumpLevel()
+{
+    int respArray[] = {0, 0, 0, 0};
+    int arrIndex = 0;
+    int currPerc = 0;
+
+    for (int i = 6; i <= 8; i++) {
+
+        int pinStatus = digitalRead(i);
+        if (pinStatus == pinModeStatus)
+        {
+            respArray[arrIndex] = getLevelOfSump(i);
+        }
+        arrIndex++;
+    }
+    currPerc = maxValOfArray(respArray);
+    return currPerc;
+} 
+
+int getLevelOfSump(int pinNo)
+{
+    int perc = 0;
+    switch (pinNo) {
+    case sump_green: // level 1 - pin 6
+        perc = 100;
+        break;
+
+    case sump_black: // level 2 - pin 7
+        perc = 70;
+        break;
+
+    case sump_red: // level 3 - pin 8
+        perc = 40;
+        break;
+
+    default:
+        perc = 0;
+        break;
+    }
+
+    return perc;
+}
+
+//------Gen Functions 
 int maxValOfArray(int arr[])
 {
     int maxVal = 0;
