@@ -99,7 +99,7 @@ int getLevel(int pinNo)
 int maxValOfArray(int arr[])
 {
     int maxVal = 0;
-    for (int i = 1; i <= 4; i++)
+    for (int i = 0; i <= 3; i++)
     {
         if (arr[i] >= maxVal)
         {
