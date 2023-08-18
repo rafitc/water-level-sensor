@@ -22,6 +22,8 @@ int volatage_high = 14;
 int voltage_low = 15;
 
 // TODO Dry Run logic
+int pump = 16;
+int dry_run = 17;
 
 void setup()
 {
@@ -39,6 +41,7 @@ void loop()
 {
     // put your main code here, to run repeatedly:
     int tankLevel =0, sumpLevel = 0;
+    int pumping = 0; //pumping = 0 is dry run and pumping = 1 is not dry run
 
     // Find Tank 1 Water level
     tankLevel = checkTankLevel();
@@ -52,6 +55,16 @@ void loop()
     Serial.print(sumpLevel);
     Serial.println("%");
     delay(100);
+
+    //dry run logic 
+    pumping = checkPumpingStatus();
+    if (pumping){
+        Serial.print("Pumping \n");
+    }
+    else{
+        Serial.println("DRY RUN !!!!\n");
+    }
+
 
 }
 //------Functions for Tank 
@@ -161,4 +174,37 @@ int maxValOfArray(int arr[])
         }
     }
     return maxVal;
+}
+
+//------------ Function for dry Run/pumping status 
+int checkPumpingStatus(){
+    const long interval = 3000; // 3 Sec interval
+    unsigned long previousMillis = millis();
+    bool breakFlag = false;
+    int foundPumping = 0;
+    int pumpStatus = 0; //Let dry run the motor 
+
+    while (true){
+        unsigned long currentMillis = millis();
+        if (breakFlag){
+            break;
+        }
+
+        if (currentMillis - previousMillis >= interval) {
+            // add return statement
+            // if pumpStatus is not updated in 3 sec. which means it is dry running 
+            return pumpStatus;
+        }
+
+        // Check the pump 
+        foundPumping = digitalRead(pump);
+        if (foundPumping == pinModeStatus){
+            if (foundPumping == HIGH){
+                // found pumping 
+                pumpStatus = 1;
+                return pumpStatus;
+            }
+        }
+    }
+
 }
